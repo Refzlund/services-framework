@@ -1,5 +1,5 @@
 {
-	"name": "service-framework",
+	"name": "services-framework",
 	"version": "1.0.0-next.0",
 	"description": "Seperates classes and functions into services making functionality testable and seperate of concerns.",
 	"keywords": [],

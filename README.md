@@ -1,8 +1,8 @@
-<h1 align="center">Service Framework 🚀</h1>
+<h1 align="center">Services Framework 🚀</h1>
 
->  Pre-release: Still sorting out some type-shenanigans, so use for testing/experimenting with the library.
+> Pre-release: Still sorting out some type-shenanigans, so use for testing/experimenting with the library.
 
-Service Framework, a powerful solution for creating modular, test-driven, and fully typed services for your projects. Say goodbye to messy code and hello to a clean and organized API that enhances developer experience and reusability.
+Services Framework, a powerful solution for creating modular, test-driven, and fully typed services for your projects. Say goodbye to messy code and hello to a clean and organized API that enhances developer experience and reusability.
 
 - 🤩 **Modular**: Granular and modular control of entities
 - 🧪 **Test-driven**: Write reliable and maintainable code
@@ -11,14 +11,14 @@ Service Framework, a powerful solution for creating modular, test-driven, and fu
 ## Quick Start
 
 <p align="center">
-	<code>npm i -D service-framework</code>
+	<code>npm i -D services-framework</code>
 	 / 
-	<code>pnpm add -D service-framework</code>
+	<code>pnpm add -D services-framework</code>
 </p>
 
-## Why Service Framework?
+## Why Services Framework?
 
-1. **Service-based mindset**: Embrace a granular and modular approach to managing entities. With Service Framework, you can easily define services for your entities and choose which functions should be available to them. This results in a highly flexible and reusable codebase.
+1. **Service-based mindset**: Embrace a granular and modular approach to managing entities. With Services Framework, you can easily define services for your entities and choose which functions should be available to them. This results in a highly flexible and reusable codebase.
 
 Example; you have an API to create new documents to a database:
 
@@ -56,12 +56,12 @@ export const services = createServices({
 Essentially giving a huge amount of control and re-usability.
 
 2. **Seperation of concerns**: Keep your code clean and organized by spreading functions across different files. This approach ensures a readable and accessible structure.
-3. SvelteKit friendly: SvelteKit contains frontend and backend in the same project. Using **service-framework** we can re-use classes on the frontend to for instance, validate contents before it is sent to the backend API.
+3. SvelteKit friendly: SvelteKit contains frontend and backend in the same project. Using **services-framework** we can re-use classes on the frontend to for instance, validate contents before it is sent to the backend API.
 
 ## Example
 
 ```ts
-import { createServicesFramework } from 'service-framework'
+import { createServicesFramework } from 'services-framework'
 
 class User {
     id: string = generateId()
