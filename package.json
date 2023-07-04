@@ -5,10 +5,10 @@
 	"keywords": [],
 	"author": "Arthur Refslund @Refzlund",
 	"license": "MIT",
-	"repository": "github:refzlund/service-framework",
-	"homepage": "https://github.com/Refzlund/service-framework",
+	"repository": "github:refzlund/services-framework",
+	"homepage": "https://github.com/Refzlund/services-framework",
 	"bugs": {
-		"url": "https://github.com/Refzlund/service-framework/issues"
+		"url": "https://github.com/Refzlund/services-framework/issues"
 	},
 	"scripts": {
 		"test": "vitest --type-check ./**/*.test.ts",
