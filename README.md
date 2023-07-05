@@ -19,8 +19,17 @@ Services Framework, a powerful solution for creating modular, test-driven, and f
 ### Usage example
 
 ```ts
-// services/entities/users/index.ts
-const service: = {
+// ../entities/user/index.ts
+import signUp from '$entities/user/sign-up'
+import logIn from '$entities/user/log-in'
+import getCompanies from '$entities/user/get-companies'
+import databaseHandlers from '$services/collection.database-handlers'
+
+class User {
+	...
+}
+
+export const userService = {
 	entity: User,
 
 	locals: { // In development
@@ -41,42 +50,43 @@ const service: = {
 ```
 
 ```ts
-// services/entities/users/sign-up.ts
-interface Authentication {
-	email: string
-	password: string
-}
+// ../entities/user/sign-up.ts
+import type { ClassConstructor, StaticServiceFunction } from 'services-framework'
+import type { User } from '$entities/user'
 
-export default (<T extends Authentication = typeof entities.User>(User) => {
-	return {
-		async signUp(details: Partial<T> & Authentication) {
+export default (<T extends User>(User: ClassConstructor<T>) => ({
 
-			...
-			const user = new User(...)
-			...
-			User.logIn(...)
-
-		}
+	async signUp(details: Partial<T> & Authentication) {
+		...
+		const user = new User(...)
+		...
 	}
-}) satisfies StaticServiceFunction
+
+})) satisfies StaticServiceFunction
 ```
 
 ```ts
-// services/entities/users/get-companies.ts
-export default (<T = typeof entites.User>(User, instance) => {
+// .../entities/users/get-companies.ts
+import type { ClassConstructor, InstanceServiceFunction } from 'services-framework'
+import type { User } from '$entities/user'
+
+export default (<T extends User>(User, instance) => ({
 	return {
 		async getCompanies() {
-		
+
 			const companies = instance.companies
 			...
 
 		}
 	}
-}) satisfies InstanceServiceFunction
+})) satisfies InstanceServiceFunction
 ```
 
 ```ts
-// services/index.ts
+// .../services/index.ts
+import { userService } from '$entities/user'
+import { companyService } from '$entities/company'
+
 export default createServices({
 	User: userService,
 	Company: companyService,
