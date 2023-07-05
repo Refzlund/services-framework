@@ -4,9 +4,9 @@
 
 Services Framework, a powerful solution for creating modular, test-driven, and fully typed services for your projects. Say goodbye to messy code and hello to a clean and organized API that enhances developer experience and reusability.
 
-- [ ] 🤩 **Modular**: Granular and modular control of entities
-- [ ] 🧪 **Test-driven**: Write reliable and maintainable code
-- [ ] 💫 **Typed**: TypeScript support for maximum safety and productivity
+- [X] 🤩 **Modular**: Granular and modular control of entities
+- [X] 🧪 **Test-driven**: Write reliable and maintainable code
+- [X] 💫 **Typed**: TypeScript support for maximum safety and productivity
 
 ## Quick Start
 
@@ -66,7 +66,7 @@ export default (<T extends Authentication = typeof entities.User>(User) => {
 export default (<T = typeof entites.User>(User, instance) => {
 	return {
 		async getCompanies() {
-			
+		
 			const companies = instance.companies
 			...
 
