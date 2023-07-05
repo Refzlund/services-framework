@@ -1,6 +1,8 @@
 import type { UserConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
+
+
 const config: UserConfig = {
 	build: {
 		outDir: './.dist',
@@ -11,6 +13,14 @@ const config: UserConfig = {
 		}
 	},
 	plugins: [dts()],
+	test: {
+		watch: false,
+		include: ['./src/**/*.test.ts'],
+		typecheck: {
+			include: ['./src/**/*.ts', './src/**/*.test.ts'],
+			tsconfig: 'tsconfig.json'
+		}
+	},
 }
 
 export default config

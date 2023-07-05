@@ -1,38 +1,40 @@
-import * as T from 'utility-types'
+export type InferConstructor<T extends ClassConstructor<any>> = T extends new (...args: any) => infer K ? K : never
+export type InferConstructorArgs<T extends ClassConstructor<any>> = T extends new (...args: infer K) => any ? K : never
 
+export type StaticServiceFunction<E = any>   = <C extends E>(entity: ClassConstructor<C>) =>                Record<string, (...args: any) => any>
+export type InstanceServiceFunction<E = any> = <C extends E>(entity: ClassConstructor<C>, instance: C) =>   Record<string, (...args: any) => any>
 
-export type StaticServiceFunction<E extends Constructable<any>> = (entity: E) => (...args: any) => any
-export type InstanceServiceFunction<E extends Constructable<any>> = (entity: E, instance: Partial<ConstructorReturn<E>>) => (...args: any) => any
+type Recurse<O> = Record<string, O> | Readonly<Array<Record<string, O>> | O> | O
+type RecursiveObject<O> = Readonly<Array<Recurse<O | Recurse<O | Recurse<O | Recurse<O | Recurse<O>>>>>>>
 
+export type StaticServicesOpts = RecursiveObject<StaticServiceFunction>
+export type InstanceServicesOpts = RecursiveObject<InstanceServiceFunction>
 
-type RecursiveObject<O> = Record<string, O | Record<string, O | Record<string, O | Record<string, O>>>>
-
-export type Service<E extends Constructable<any>> = {
-	entity: E
-	staticServices?: RecursiveObject<StaticServiceFunction<E>>
-	instanceServices?: RecursiveObject<InstanceServiceFunction<E>>
+export type Service<E extends ClassConstructor<any> | Class<any>> = {
+	entity: E extends ClassConstructor<any> ? E : ClassConstructor<E>
+	staticServices?: StaticServicesOpts
+	instanceServices?: InstanceServicesOpts
 }
 
-export type ConstructorArgs<T extends T.Class<any>> = T extends new (...args: infer K) => any ? K : never
-export type ConstructorReturn<T extends T.Class<any>> = T extends new (...args: any) => infer K ? K : never
+// * --- Utility --- * //
+export type Class<T> = T
+export type ClassConstructor<T = any, TArgs extends Array<any> = any> = new (...args: TArgs) => T
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
+type IntersectArray<U extends Array<any>> = UnionToIntersection<U[number]>
+type IntersectFunctionArray<U extends Array<(...args: any) => any>> = UnionToIntersection<Returned<U[number]>>
+export type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & NonNullable<unknown>
 
-export interface Constructable<T, Args extends T.Class<T> = T.Class<T>> {
-	new(...args: ConstructorArgs<Args>): T
+// * --- Handle services --- * //
+type HandleServices<S> = S extends Array<any> ? Simplify<HandleArray<S>> : Simplify<Nested<S>>
+type Returned<K> = K extends (...args: any) => any ? ReturnType<K> : never
+type Nested<K> = {
+	[Key in keyof K]:
+	K[Key] extends (...args: any) => any ? ReturnType<K[Key]>
+	: K[Key] extends Array<any> ? Simplify<HandleArray<K[Key]>> : Simplify<Nested<K[Key]>>
 }
+type HandleArray<K extends Array<any>> = IntersectFunctionArray<K> & Simplify<Nested<IntersectArray<K>>>
 
-type InstanceServices<S extends Service<any>, O extends RecursiveObject<InstanceServiceFunction<S['entity']>> | undefined> = {
-	[Key in keyof O]: O[Key] extends InstanceServiceFunction<S['entity']> ?
-		ReturnType<O[Key]> : InstanceServices<S, O[Key]>
-}
-
-type StaticServices<S extends Service<any>, O extends RecursiveObject<StaticServiceFunction<S['entity']>> | undefined> = {
-	[Key in keyof O]: O[Key] extends StaticServiceFunction<S['entity']> ? 
-		ReturnType<O[Key]> : StaticServices<S, O[Key]>
-}
-
-
-
-export type ServiceFramework<S extends Service<any>> = Constructable<
-	ConstructorReturn<S['entity']> & InstanceServices<S, S['instanceServices']>,
-	S['entity']
-> & StaticServices<S, S['staticServices']>
+export type ServiceFramework<S extends Service<any>> = ClassConstructor<
+		InferConstructor<S['entity']> & Simplify<HandleServices<S['instanceServices']>>,
+		InferConstructorArgs<S['entity']>
+	> & Simplify<HandleServices<S['staticServices']>>

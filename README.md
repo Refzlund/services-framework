@@ -4,9 +4,9 @@
 
 Services Framework, a powerful solution for creating modular, test-driven, and fully typed services for your projects. Say goodbye to messy code and hello to a clean and organized API that enhances developer experience and reusability.
 
-- 🤩 **Modular**: Granular and modular control of entities
-- 🧪 **Test-driven**: Write reliable and maintainable code
-- 💫 **Typed**: TypeScript support for maximum safety and productivity
+- [ ] 🤩 **Modular**: Granular and modular control of entities
+- [ ] 🧪 **Test-driven**: Write reliable and maintainable code
+- [ ] 💫 **Typed**: TypeScript support for maximum safety and productivity
 
 ## Quick Start
 
@@ -15,6 +15,74 @@ Services Framework, a powerful solution for creating modular, test-driven, and f
 	 / 
 	<code>pnpm add -D services-framework</code>
 </p>
+
+### Usage example
+
+```ts
+// services/entities/users/index.ts
+const service: = {
+	entity: User,
+
+	locals: { // In development
+		table: 'users'
+	}
+
+	staticServices: [
+		signUp<User>, 
+		logIn<User>
+	],
+
+	instanceServices: [
+		getCompanies<User>
+	],
+
+	collections: [databaseHandlers<User>] // In development
+} satisfies Service
+```
+
+```ts
+// services/entities/users/sign-up.ts
+interface Authentication {
+	email: string
+	password: string
+}
+
+export default (<T extends Authentication = typeof entities.User>(User) => {
+	return {
+		async signUp(details: Partial<T> & Authentication) {
+
+			...
+			const user = new User(...)
+			...
+			User.logIn(...)
+
+		}
+	}
+}) satisfies StaticServiceFunction
+```
+
+```ts
+// services/entities/users/get-companies.ts
+export default (<T = typeof entites.User>(User, instance) => {
+	return {
+		async getCompanies() {
+			
+			const companies = instance.companies
+			...
+
+		}
+	}
+}) satisfies InstanceServiceFunction
+```
+
+```ts
+// services/index.ts
+export default createServices({
+	User: userService,
+	Company: companyService,
+	...
+})
+```
 
 ## Why Services Framework?
 

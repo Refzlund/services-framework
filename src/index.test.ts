@@ -1,64 +1,94 @@
 import { describe, it, beforeAll, expect } from 'vitest'
-import { createServicesFramework } from './create-services'
+import { ClassConstructor, InstanceServiceFunction, Service, StaticServiceFunction, createServicesFramework } from '.'
+
+
+class User {
+	name: string
+	age: number
+
+	constructor(content: User) {
+		Object.assign(this, content)
+	}
+}
+
+function createFramework() {
+	// * --- Seperate files --- *
+	const nameToUpper = (<T extends { name: string }>(service: ClassConstructor<T>, instance: T) => ({
+		
+		nameToUpper(newName?: string) {
+			instance.name = (newName || instance.name).toUpperCase()
+		}
+		
+	})) satisfies InstanceServiceFunction
+
+	const getName = (<T>(service: ClassConstructor<T>, instance) => ({
+		
+		getName() {
+			return instance.name
+		}
+
+	})) satisfies InstanceServiceFunction
+
+	const getInstance = (<T>(service: ClassConstructor<T>, instance: T) => ({
+		
+		getInstance() {
+			return instance
+		}
+
+	})) satisfies InstanceServiceFunction
+
+	const registerUser = (<T>(service: ClassConstructor<T>) => ({
+		
+		registerUser(content) {
+			return { test: content }
+		}
+
+	})) satisfies StaticServiceFunction
+	// * ---------------------- *
+
+	const userService = {
+		entity: User,
+		staticServices: [
+			registerUser<User>,
+			{
+				nested: {
+					deep: [
+						registerUser<User>
+					]
+				}
+			}
+		],
+		instanceServices: [
+			getName<User>,
+			getInstance<User>,
+			nameToUpper<User>,
+			{
+				nested: {
+					deep: [
+						getName<User>,
+					]
+				}
+			}
+		]
+	} satisfies Service<User>
+
+	return createServicesFramework({
+		User: userService,
+		Test: {
+			entity: User
+		}
+	})
+}
 
 describe('service-framework', () => {
-	let framework: any
-
+	let framework: ReturnType<typeof createFramework>
+	
 	beforeAll(() => {
-		class User {
-			name: string
-			age: number
-
-			constructor(content: User) {
-				Object.assign(this, content)
-			}
-		}
-
-		function nameToUpper<T>(entity: T, instance) {
-			return function (newName?: string) {
-				instance.name = (newName || instance.name).toUpperCase()
-			}
-		}
-
-		function getName<T>(entity: T, instance) {
-			return function () {
-				return instance.name
-			}
-		}
-
-		function getInstance<T>(entity: T, instance) {
-			return function () {
-				return instance
-			}
-		}
-
-		function registerUser(entity: User) {
-			return function (content) {
-				return { test: content }
-			}
-		}
-
-		framework = createServicesFramework({
-			User: {
-				entity: User,
-				staticServices: {
-					registerUser,
-					nested: { deep: { registerUser } }
-				},
-				instanceServices: {
-					nameToUpper,
-					getInstance,
-					getName,
-					nested: { deep: { getName } }
-				}
-			},
-			Test: {
-				entity: User
-			}
-		})
+		framework = createFramework()
 	})
 
 	it('should have a static method (service) that can return its input', () => {
+
 		const user = new framework.User({ name: 'Carl', age: 13 })
 		const returnedValue = framework.User.registerUser(user)
 
@@ -81,14 +111,14 @@ describe('service-framework', () => {
 
 	it('should hold a reference to the entity, and always give updated content for entity instance service function', () => {
 		const user = new framework.User({ name: 'John', age: 13 })
-
+		
 		expect(user.getName()).to.be.string('John')
 		user.nameToUpper()
 		expect(user.getName()).to.be.string('JOHN')
 	})
 
 	it('should be able to call deeply nested functions', () => {
-		framework.User.nested.deep.registerUser()
+		framework.User.nested.deep.registerUser({})
 		const user = new framework.User({ name: 'John', age: 13 })
 		user.nested.deep.getName()
 	})
