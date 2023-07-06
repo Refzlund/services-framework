@@ -4,9 +4,9 @@
 
 Services Framework, a powerful solution for creating modular, test-driven, and fully typed services for your projects. Say goodbye to messy code and hello to a clean and organized API that enhances developer experience and reusability.
 
-- [X] 🤩 **Modular**: Granular and modular control of entities
-- [X] 🧪 **Test-driven**: Write reliable and maintainable code
-- [X] 💫 **Typed**: TypeScript support for maximum safety and productivity
+- 🤩 **Modular**: Granular and modular control of entities
+- 🧪 **Test-driven**: Write reliable and maintainable code
+- 💫 **Typed**: TypeScript support for maximum safety and productivity
 
 ## Quick Start
 
@@ -18,8 +18,51 @@ Services Framework, a powerful solution for creating modular, test-driven, and f
 
 ### Usage example
 
+<details><summary>Sign Up (<i>Static Service</i>)</summary>
+
+```ts
+// ../entities/user/sign-up.ts
+
+import type { ClassConstructor, StaticServiceFunction } from 'services-framework'
+import type { User } from '$entities/user'
+
+export default (<T extends User>(User: ClassConstructor<T>) => ({
+
+	async signUp(details: Partial<T> & Authentication) {
+		const user = new User(...)
+		...
+	}
+
+})) satisfies StaticServiceFunction
+
+```
+</details>
+
+<details><summary>Get Companies (<i>Instance Service</i>)</summary>
+	
+```ts
+// .../entities/users/get-companies.ts
+
+import type { ClassConstructor, InstanceServiceFunction } from 'services-framework'
+import type { User } from '$entities/user'
+
+export default (<T extends User>(User: ClassConstructor<T>, instance: T) => ({
+
+	async getCompanies() {
+		const companies = instance.companies
+		...
+	}
+
+})) satisfies InstanceServiceFunction
+
+```
+</details>
+
+<br>
+
 ```ts
 // ../entities/user/index.ts
+
 import signUp from '$entities/user/sign-up'
 import logIn from '$entities/user/log-in'
 import getCompanies from '$entities/user/get-companies'
@@ -47,40 +90,12 @@ export const userService = {
 
 	collections: [databaseHandlers<User>] // In development
 } satisfies Service<User>
-```
 
-```ts
-// ../entities/user/sign-up.ts
-import type { ClassConstructor, StaticServiceFunction } from 'services-framework'
-import type { User } from '$entities/user'
-
-export default (<T extends User>(User: ClassConstructor<T>) => ({
-
-	async signUp(details: Partial<T> & Authentication) {
-		const user = new User(...)
-		...
-	}
-
-})) satisfies StaticServiceFunction
-```
-
-```ts
-// .../entities/users/get-companies.ts
-import type { ClassConstructor, InstanceServiceFunction } from 'services-framework'
-import type { User } from '$entities/user'
-
-export default (<T extends User>(User: ClassConstructor<T>, instance: T) => ({
-
-	async getCompanies() {
-		const companies = instance.companies
-		...
-	}
-
-})) satisfies InstanceServiceFunction
 ```
 
 ```ts
 // .../services/index.ts
+
 import { userService } from '$entities/user'
 import { companyService } from '$entities/company'
 
@@ -89,6 +104,18 @@ export default createServices({
 	Company: companyService,
 	...
 })
+
+```
+
+```ts
+// .../...
+
+import services from '$serivces'
+
+services.User.signUp(...)
+const user = new services.User(...)
+user.getCompanies()
+
 ```
 
 ## Why Services Framework?
