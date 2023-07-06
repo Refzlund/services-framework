@@ -15,7 +15,7 @@ const config: UserConfig = {
 	plugins: [dts()],
 	test: {
 		watch: false,
-		include: ['./src/**/*.test.ts'],
+		include: ['**/*.test.ts'],
 		typecheck: {
 			include: ['./src/**/*.ts', './src/**/*.test.ts'],
 			tsconfig: 'tsconfig.json'

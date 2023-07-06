@@ -46,29 +46,40 @@ const deleteDocument = (<C extends Class<any>>(entity: ClassConstructor<C>, inst
 const userService = {
 
 	entity: User,
-	staticServices: [
-		getFromDatabase<User>,
-		getAll<User>,
-		{
-			nested: [
-				getFromDatabase<User>,
-				getAll<User>
-			]
-		}
-	],
-	instanceServices: [
-		mergeDocument<User>,
-		deleteDocument<User>,
-		{
-			nested: {
-				functions: [
-					mergeDocument<User>,
-					deleteDocument<User>,
+
+	static: {
+		locals: {
+			collection: 'users'
+		},
+		services: [
+			getFromDatabase<User>,
+			getAll<User>,
+			{
+				nested: [
+					getFromDatabase<User>,
+					getAll<User>
 				]
 			}
-		}
-	]
+		]
+	},
 
+	instance: {
+		locals: () => ({
+			createdAt: new Date()
+		}),
+		services: [
+			mergeDocument<User>,
+			deleteDocument<User>,
+			{
+				nested: {
+					functions: [
+						mergeDocument<User>,
+						deleteDocument<User>,
+					]
+				}
+			}
+		]
+	}
 } satisfies Service<User>
 
 
