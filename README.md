@@ -95,14 +95,14 @@ export default (<T extends ClassOf<User>>(User: ClassConstructor<T>, instance: T
 import ... from ...
 
 interface Options = {
-	collection: string
+	table: string
 }
 
 export default <T extends ClassOf<any>>(opts: Options) => ({
 
 	static: {
 		locals: {
-			collection: opts.collection,
+			table: opts.table,
 			...
 		},
 		services: {
@@ -159,6 +159,7 @@ import signUp from '$entities/user/sign-up'
 import logIn from '$entities/user/log-in'
 import getCompanies from '$entities/user/get-companies'
 import databaseHandlers from '$services/collection.database-handlers'
+import passwordHash from '$utils/password-hash.ts'
 
 export class User {
 	...
@@ -169,7 +170,7 @@ export const userService = {
 
 	static: {
 		locals: {
-			collection: 'users'
+			passwordEncryption: passwordHash
 		},
 		services: [
 			signUp<User>, 
@@ -188,7 +189,7 @@ export const userService = {
 
 	//*WIP
 	collections: [ 
-		databaseHandlers<User>({ collection: 'users' })
+		databaseHandlers<User>({ table: 'users' })
 	] 
 } satisfies Service<User>
 ```
