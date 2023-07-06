@@ -1,6 +1,13 @@
 <h1 align="center">Services Framework 🚀</h1>
 
-> Pre-release: Still sorting out some type-shenanigans, so use for testing/experimenting with the library.
+<h3 align="center">
+
+![Linting & Tests](https://github.com/Refzlund/services-framework/workflows/test.yml/badge.svg)
+</h3>
+
+
+
+> I'd be happy to recieve [#feedback](https://github.com/Refzlund/services-framework/labels/feedback) moving towards v2
 
 Services Framework, a powerful solution for creating modular, test-driven, and fully typed services for your projects. Say goodbye to messy code and hello to a clean and organized API that enhances developer experience and reusability.
 
@@ -23,8 +30,9 @@ Services Framework, a powerful solution for creating modular, test-driven, and f
 ## Why was Services Framework made?
 
 - You may re-use the same classes under different contexts: <br>
-In SvelteKit your frontend and backend code is in the same project. <br>
-**services-framework** gives you the ability to re-use classes on the frontend and backend.
+In SvelteKit your frontend and backend code is in the same project. <br><br>
+**services-framework** gives you the ability to re-use classes on the frontend and backend without dragging class embedded functions with. <br>
+This is helpful if you apply dectorators to validate content.
 
 - Modularity and re-useability: <br>
 Write a service once, and re-apply it for multiple classes. <br>
@@ -44,6 +52,7 @@ giving you more control of test suites.
 import type { ClassConstructor, StaticServiceFunction } from 'services-framework'
 import type { User } from '$entities/user'
 
+// Extending T sets the requirements for T.
 export default (<T extends User>(User: ClassConstructor<T>) => ({
 
 	async signUp(details: Partial<T> & Authentication) {
@@ -62,6 +71,7 @@ export default (<T extends User>(User: ClassConstructor<T>) => ({
 import type { ClassConstructor, InstanceServiceFunction } from 'services-framework'
 import type { User } from '$entities/user'
 
+// Extending T sets the requirements for T.
 export default (<T extends User>(User: ClassConstructor<T>, instance: T) => ({
 
 	async getCompanies() {
@@ -71,6 +81,36 @@ export default (<T extends User>(User: ClassConstructor<T>, instance: T) => ({
 
 })) satisfies InstanceServiceFunction
 ```
+</details>
+
+<details><summary><i><small>Adding options</i></small></summary>
+
+```ts
+interface Options {...}
+
+export default function(opts: Options) {
+
+	// Custom logic
+	...
+
+	// 👇 Do not run code between this function and the returned Record-object
+	// As the keys are fetched like this: `service(null, null)`
+	return (<T>(Service: ClassConstructor<T>, instance: T) => ({
+
+		async someFunction() {
+			...
+		}
+
+	})) satisfies InstanceServiceFunction
+}
+
+// --- * Usage * ---
+const instanceServices = [
+	someFunction(...)<Entity>
+]
+
+```
+
 </details>
 
 <br>

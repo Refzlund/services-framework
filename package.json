@@ -1,6 +1,6 @@
 {
 	"name": "services-framework",
-	"version": "1.0.0-next.0",
+	"version": "1.0.0",
 	"description": "Seperates classes and functions into services making functionality testable and seperate of concerns.",
 	"keywords": [],
 	"author": "Arthur Refslund @Refzlund",
@@ -8,7 +8,7 @@
 	"repository": "github:refzlund/services-framework",
 	"homepage": "https://github.com/Refzlund/services-framework",
 	"bugs": {
-		"url": "https://github.com/Refzlund/services-framework/issues"
+		"url": "https://github.com/Refzlund/services-framework/labels/bug"
 	},
 	"scripts": {
 		"lint": "eslint src/**",
