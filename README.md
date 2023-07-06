@@ -8,6 +8,8 @@ Services Framework, a powerful solution for creating modular, test-driven, and f
 - 🧪 **Test-driven**: Write reliable and maintainable code
 - 💫 **Typed**: TypeScript support for maximum safety and productivity
 
+<br><br>
+
 ## Quick Start
 
 <p align="center">
@@ -16,13 +18,29 @@ Services Framework, a powerful solution for creating modular, test-driven, and f
 	<code>pnpm add -D services-framework</code>
 </p>
 
-### Usage example
+<br><br>
+
+## Why was Services Framework made?
+
+- You may re-use the same classes under different contexts: <br>
+In SvelteKit your frontend and backend code is in the same project. <br>
+**services-framework** gives you the ability to re-use classes on the frontend and backend.
+
+- Modularity and re-useability: <br>
+Write a service once, and re-apply it for multiple classes. <br>
+
+- Testable: <br>
+By splitting the code up, you allow for seperation of concerns,<br> 
+giving you more control of test suites.
+
+<br><br>
+
+## Usage
 
 <details><summary>Sign Up (<i>Static Service</i>)</summary>
 
 ```ts
 // ../entities/user/sign-up.ts
-
 import type { ClassConstructor, StaticServiceFunction } from 'services-framework'
 import type { User } from '$entities/user'
 
@@ -34,7 +52,6 @@ export default (<T extends User>(User: ClassConstructor<T>) => ({
 	}
 
 })) satisfies StaticServiceFunction
-
 ```
 </details>
 
@@ -42,7 +59,6 @@ export default (<T extends User>(User: ClassConstructor<T>) => ({
 	
 ```ts
 // .../entities/users/get-companies.ts
-
 import type { ClassConstructor, InstanceServiceFunction } from 'services-framework'
 import type { User } from '$entities/user'
 
@@ -54,7 +70,6 @@ export default (<T extends User>(User: ClassConstructor<T>, instance: T) => ({
 	}
 
 })) satisfies InstanceServiceFunction
-
 ```
 </details>
 
@@ -62,7 +77,6 @@ export default (<T extends User>(User: ClassConstructor<T>, instance: T) => ({
 
 ```ts
 // ../entities/user/index.ts
-
 import signUp from '$entities/user/sign-up'
 import logIn from '$entities/user/log-in'
 import getCompanies from '$entities/user/get-companies'
@@ -75,7 +89,8 @@ export class User {
 export const userService = {
 	entity: User,
 
-	locals: { // In development
+	//*In development
+	locals: { 
 		table: 'users'
 	}
 
@@ -88,14 +103,15 @@ export const userService = {
 		getCompanies<User>
 	],
 
-	collections: [databaseHandlers<User>] // In development
+	//*In development
+	collections: [ 
+		databaseHandlers<User>({...options})
+	] 
 } satisfies Service<User>
-
 ```
 
 ```ts
 // .../services/index.ts
-
 import { userService } from '$entities/user'
 import { companyService } from '$entities/company'
 
@@ -104,117 +120,15 @@ export default createServices({
 	Company: companyService,
 	...
 })
-
 ```
 
 ```ts
 // .../...
-
 import services from '$serivces'
 
 services.User.signUp(...)
 const user = new services.User(...)
 user.getCompanies()
-
 ```
 
-## Why Services Framework?
 
-1. **Service-based mindset**: Embrace a granular and modular approach to managing entities. With Services Framework, you can easily define services for your entities and choose which functions should be available to them. This results in a highly flexible and reusable codebase.
-
-Example; you have an API to create new documents to a database:
-
-```ts
-function createDocument(entity) {
-    return (content) => {
-        const errors = validate(content)
-        if(errors.length > 0) {
-            return errors
-        }
-        return await db.query(`CREATE $content.id CONTENT $content`, { content })
-    }
-}
-```
-
-After providing this function, we can choose what entities can be have this:
-
-```ts
-export const services = createServices({
-    User: {
-        entity: User,
-        staticServices: [createDocument]
-    },
-    Account: {
-        entity: Account,
-        staticServices: [createDocument]
-    },
-    Pet: {
-        entity: Pet,
-        staticServices: []
-    }
-})
-```
-
-Essentially giving a huge amount of control and re-usability.
-
-2. **Seperation of concerns**: Keep your code clean and organized by spreading functions across different files. This approach ensures a readable and accessible structure.
-3. SvelteKit friendly: SvelteKit contains frontend and backend in the same project. Using **services-framework** we can re-use classes on the frontend to for instance, validate contents before it is sent to the backend API.
-
-## Example
-
-```ts
-import { createServicesFramework } from 'services-framework'
-
-class User {
-    id: string = generateId()
-    email: string
-    password: string
-    name: string
-
-    constructor(content: Omit<User, 'id'>) {
-        Object.assign(this, content)
-    }
-}
-
-// Static function
-function createLogin(entity) {
-    return (content: {
-        email: string
-        password: string
-    }) => {
-        ...
-    }
-}
-
-// Entity instance function
-function setNameToUpperCase(entity, instance: { name: string }) {
-    return () => {
-        stance.name = content.name.toUpperCase()
-    }
-}
-
-// Create service layer
-export const entities = createServicesFramework({
-    User: {
-        entity: User,
-        staticServices: {
-          createLogin
-        },
-        instanceServices: {
-            setNameToUpperCase
-        }
-    }
-})
-
-// Example use
-const user = new entities.User({ 
-    email: 'my@email.com', 
-    password: '123456'
-})
-
-entities.User.createLogin(user)
-user.setNameToUpperCase()
-
-```
-
-<div style='margin-bottom: 100px;'> </div>
