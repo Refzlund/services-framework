@@ -1,4 +1,4 @@
-name: Run Vitest
+name: Testing & Linting
 on:
   push:
     branches: ["main"]

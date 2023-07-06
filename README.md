@@ -1,8 +1,7 @@
 <h1 align="center">Services Framework 🚀</h1>
-
 <h3 align="center">
 
-![Linting & Tests](https://github.com/Refzlund/services-framework/workflows/test.yml/badge.svg)
+![Linting & Tests](https://github.com/Refzlund/services-framework/actions/workflows/test.yml/badge.svg)
 </h3>
 
 
