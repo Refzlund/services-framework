@@ -5,7 +5,8 @@ function handleObject(
 	framework: ServiceFramework<any>,
 	obj: StaticServicesOpts | InstanceServicesOpts,
 	nested: Record<any, any>,
-	instance?: Record<any, any>
+	instance?: Record<any, any>,
+	locals?: Record<any, any>
 ) {
 	for (const key in obj) {
 		const service = obj[key]
@@ -14,7 +15,7 @@ function handleObject(
 			throw new Error(`Service ${key} already exists`)
 
 		if (typeof service === 'function') {
-			const fn = !!instance ? service(framework, instance) : (<any>service)(framework)
+			const fn = !!instance ? service(framework, instance, locals as Record<any, any>) : (<any>service)(framework)
 			for (const key in fn) {
 				if (key in nested)
 					throw new Error(`Service ${key} already exists`)
@@ -36,14 +37,15 @@ function handleArray(
 	framework: ServiceFramework<any>,
 	arr?: StaticServicesOpts | InstanceServicesOpts,
 	nested?: Record<any, any>, 
-	instance?: Record<any, any>
+	instance?: Record<any, any>,
+	locals?: Record<any, any>
 ) {
 	if (!arr || !Array.isArray(arr) || !nested)
 		return
 	
 	for (const service of arr || []) {
 		if (typeof service === 'function') {
-			const fn = !!instance ? service(framework, instance) : (<any>service)(framework)
+			const fn = !!instance ? service(framework, instance, locals) : (<any>service)(framework)
 			for (const key in fn) {
 				if (key in nested)
 					throw new Error(`Service ${key} already exists`)
@@ -51,10 +53,10 @@ function handleArray(
 			}
 		}
 		else if (Array.isArray(service)) {
-			handleArray(framework, service, nested, instance)
+			handleArray(framework, service, nested, instance, locals)
 		}
 		else if (typeof service === 'object') {
-			handleObject(framework, service as typeof arr, nested, instance)
+			handleObject(framework, service as typeof arr, nested, instance, locals)
 		}
 	}
 }
@@ -62,14 +64,19 @@ function handleArray(
 export function createServiceFramework<const S extends Service<any>>(
 	services: S
 ) {
+	const localsMap = new WeakMap()
 	const Framework = class extends (<any>services.entity) {
 		constructor(...args: any) {
 			super(...args)
-			handleArray(Framework as any, services.instanceServices, this, this)
+			const locals = services.instance?.locals?.(Framework, this) || {}
+			localsMap.set(this, locals)
+			handleArray(Framework as any, services.instance?.services, this, this, locals)
 		}
 	} as any as ServiceFramework<S>
 
-	handleArray(Framework as any, services.staticServices, Framework)
+	Framework.getLocals = instance => localsMap.get(instance)
+	Framework.locals = services.static?.locals || {}
+	handleArray(Framework as any, services.static?.services, Framework)
 	Object.defineProperty(Framework, 'name', { value: services.entity.name })
 
 	return Framework

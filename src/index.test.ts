@@ -29,6 +29,14 @@ function createFramework() {
 
 	})) satisfies InstanceServiceFunction
 
+	const getLocal = (<T>(service: ClassConstructor<T>, instance, locals) => ({
+
+		getLocal() {
+			return locals
+		}
+
+	})) satisfies InstanceServiceFunction
+
 	const getInstance = (<T>(service: ClassConstructor<T>, instance: T) => ({
 		
 		getInstance() {
@@ -48,28 +56,37 @@ function createFramework() {
 
 	const userService = {
 		entity: User,
-		staticServices: [
-			registerUser<User>,
-			{
-				nested: {
-					deep: [
-						registerUser<User>
-					]
+		static: {
+			locals: {
+				collection: 'users'
+			},
+			services: [
+				registerUser<User>,
+				{
+					nested: {
+						deep: [
+							registerUser<User>
+						]
+					}
 				}
-			}
-		],
-		instanceServices: [
-			getName<User>,
-			getInstance<User>,
-			nameToUpper<User>,
-			{
-				nested: {
-					deep: [
-						getName<User>,
-					]
+			]
+		},
+		instance: {
+			locals: (service, instance) => ({ service, instance, now: (Date.now() / 1000).toFixed(0) }),
+			services: [
+				getName<User>,
+				getInstance<User>,
+				nameToUpper<User>,
+				getLocal<User>,
+				{
+					nested: {
+						deep: [
+							getName<User>,
+						]
+					}
 				}
-			}
-		]
+			]
+		}
 	} satisfies Service<User>
 
 	return createServicesFramework({
@@ -121,5 +138,16 @@ describe('service-framework', () => {
 		framework.User.nested.deep.registerUser({})
 		const user = new framework.User({ name: 'John', age: 13 })
 		user.nested.deep.getName()
+	})
+
+	it('should have created and have access to locals', () => {
+		const now = (Date.now() / 1000).toFixed(0)
+		const user = new framework.User({ name: 'John', age: 13 })
+		const locals = user.getLocal()
+		const local = framework.User.getLocals(user)
+
+		expect(framework.User.locals).to.deep.equal({ collection: 'users' })
+		expect(local).to.deep.equal(locals)
+		expect(locals).to.deep.equal({ service: framework.User, instance: user, now })
 	})
 })

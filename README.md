@@ -56,6 +56,9 @@ export default (<T extends User>(User: ClassConstructor<T>) => ({
 
 	async signUp(details: Partial<T> & Authentication) {
 		const user = new User(...)
+		const locals = User.getLocals(user)
+
+		locals.justSignedUp = true
 		...
 	}
 
@@ -71,10 +74,13 @@ import type { ClassConstructor, InstanceServiceFunction } from 'services-framewo
 import type { User } from '$entities/user'
 
 // Extending T sets the requirements for T.
-export default (<T extends User>(User: ClassConstructor<T>, instance: T) => ({
+export default (<T extends User>(User: ClassConstructor<T>, instance: T, locals: Record<any, any>) => ({
 
 	async getCompanies() {
-		const companies = instance.companies
+		const companies = instance.companies || []
+		if(locals.justSignedUp) {
+			...
+		}
 		...
 	}
 
@@ -128,21 +134,26 @@ export class User {
 export const userService = {
 	entity: User,
 
-	//*In development
-	locals: { 
-		table: 'users'
+	static: {
+		locals: {
+			collection: 'users'
+		},
+		services: [
+			signUp<User>, 
+			logIn<User>
+		],
 	}
 
-	staticServices: [
-		signUp<User>, 
-		logIn<User>
-	],
+	instance: {
+		locals: (service, instance) => ({
+			justSignedUp: false
+		}),
+		services: [
+			getCompanies<User>
+		]
+	}
 
-	instanceServices: [
-		getCompanies<User>
-	],
-
-	//*In development
+	//*WIP
 	collections: [ 
 		databaseHandlers<User>({...options})
 	] 
@@ -165,9 +176,13 @@ export default createServices({
 // .../...
 import services from '$serivces'
 
-services.User.signUp(...)
+const { User: UserService } = services
+UserService.signUp(...)
+useCollection(UserService.locals.collection)
 const user = new services.User(...)
 user.getCompanies()
+
+const { justSignedUp } = UserService.getLocals(user)
 ```
 
 
