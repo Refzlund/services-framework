@@ -25,7 +25,7 @@ import logIn from '$entities/user/log-in'
 import getCompanies from '$entities/user/get-companies'
 import databaseHandlers from '$services/collection.database-handlers'
 
-class User {
+export class User {
 	...
 }
 
@@ -46,7 +46,7 @@ export const userService = {
 	],
 
 	collections: [databaseHandlers<User>] // In development
-} satisfies Service
+} satisfies Service<User>
 ```
 
 ```ts
@@ -57,7 +57,6 @@ import type { User } from '$entities/user'
 export default (<T extends User>(User: ClassConstructor<T>) => ({
 
 	async signUp(details: Partial<T> & Authentication) {
-		...
 		const user = new User(...)
 		...
 	}
@@ -70,15 +69,13 @@ export default (<T extends User>(User: ClassConstructor<T>) => ({
 import type { ClassConstructor, InstanceServiceFunction } from 'services-framework'
 import type { User } from '$entities/user'
 
-export default (<T extends User>(User, instance) => ({
-	return {
-		async getCompanies() {
+export default (<T extends User>(User: ClassConstructor<T>, instance: T) => ({
 
-			const companies = instance.companies
-			...
-
-		}
+	async getCompanies() {
+		const companies = instance.companies
+		...
 	}
+
 })) satisfies InstanceServiceFunction
 ```
 
