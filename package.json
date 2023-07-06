@@ -13,7 +13,8 @@
 	"scripts": {
 		"lint": "eslint src/**",
 		"test": "vitest",
-		"build": "vite build"
+		"build": "vite build",
+		"release": "pnpm run build && changeset publish"
 	},
 	"type": "module",
 	"main": "./.dist/index.js",
