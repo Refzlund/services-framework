@@ -1,6 +1,6 @@
 {
 	"name": "services-framework",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Seperates classes and functions into services making functionality testable and seperate of concerns.",
 	"keywords": [],
 	"author": "Arthur Refslund @Refzlund",
@@ -13,7 +13,8 @@
 	"scripts": {
 		"lint": "eslint src/**",
 		"test": "vitest",
-		"build": "vite build"
+		"build": "vite build",
+		"release": "pnpm run build && changeset publish"
 	},
 	"type": "module",
 	"main": "./.dist/index.js",
