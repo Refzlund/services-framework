@@ -48,11 +48,11 @@ giving you more control of test suites.
 
 ```ts
 // ../entities/user/sign-up.ts
-import type { ClassConstructor, StaticServiceFunction } from 'services-framework'
+import type { ClassConstructor, StaticServiceFunction, ClassOf } from 'services-framework'
 import type { User } from '$entities/user'
 
 // Extending T sets the requirements for T.
-export default (<T extends User>(User: ClassConstructor<T>) => ({
+export default (<T extends ClassOf<User>>(User: ClassConstructor<T>) => ({
 
 	async signUp(details: Partial<T> & Authentication) {
 		const user = new User(...)
@@ -74,7 +74,7 @@ import type { ClassConstructor, InstanceServiceFunction } from 'services-framewo
 import type { User } from '$entities/user'
 
 // Extending T sets the requirements for T.
-export default (<T extends User>(User: ClassConstructor<T>, instance: T, locals: Record<any, any>) => ({
+export default (<T extends ClassOf<User>>(User: ClassConstructor<T>, instance: T, locals: Record<any, any>) => ({
 
 	async getCompanies() {
 		const companies = instance.companies || []
@@ -85,6 +85,39 @@ export default (<T extends User>(User: ClassConstructor<T>, instance: T, locals:
 	}
 
 })) satisfies InstanceServiceFunction
+```
+</details>
+
+<details><summary>databaseHandlers (<i>Service Collection</i>)</summary>
+
+```ts
+// ../services/collection.database-handlers.ts
+import ... from ...
+
+interface Options = {
+	collection: string
+}
+
+export default <T extends ClassOf<any>>(opts: Options) => ({
+
+	static: {
+		locals: {
+			collection: opts.collection,
+			...
+		},
+		services: {
+			get<T>
+			saveAll<T>
+		}
+	}
+
+	instance: {
+		services: {
+			save<T>
+		}
+	}
+
+}) satisfies Collection<T>
 ```
 </details>
 
@@ -100,7 +133,7 @@ export default function(opts: Options) {
 
 	// 👇 Do not run code between this function and the returned Record-object
 	// As the keys are fetched like this: `service(null, null)`
-	return (<T>(Service: ClassConstructor<T>, instance: T) => ({
+	return (<T extends ClassOf<any>>(Service: ClassConstructor<T>, instance: T, locals: Record<any, any>) => ({
 
 		async someFunction() {
 			...
@@ -155,7 +188,7 @@ export const userService = {
 
 	//*WIP
 	collections: [ 
-		databaseHandlers<User>({...options})
+		databaseHandlers<User>({ collection: 'users' })
 	] 
 } satisfies Service<User>
 ```
