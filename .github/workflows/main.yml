@@ -1,15 +1,19 @@
 name: Unit Testing & Linting
+
 on:
   push:
     branches:
-      - "**"
+      - **
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    
     strategy:
       matrix:
         node-version: [18]
+        pnpm-version: [8]
+    
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -17,16 +21,22 @@ jobs:
       - name: Setup PNPM v8
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: ${{ matrix.pnpm-version }}
       
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
+          cache: pnpm
       
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       
-      - name: Lint & Unit Test
-        run: pnpm run lint && pnpm run test
+      - name: Linting
+        run: pnpm run lint
+        
+      - name: Unit Testing
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build

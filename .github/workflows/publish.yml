@@ -1,13 +1,18 @@
 name: Publish
+
 on:
-  push:
+  workflow_run:
     branches:
-      - "main"
+      - main
+    workflows: 
+      - Unit Testing & Linting
+    types:
+      - completed
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,7 +40,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: pnpm run build
+          publish: pnpm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
