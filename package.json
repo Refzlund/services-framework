@@ -16,6 +16,7 @@
 	"scripts": {
 		"lint": "eslint src/**",
 		"test": "vitest",
+		"precommit": "pnpm run lint && pnpm run test",
 		"build": "vite build",
 		"release": "pnpm run build && changeset publish"
 	},

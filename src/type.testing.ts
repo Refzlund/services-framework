@@ -42,7 +42,10 @@ const availableBurgers = (<T extends ClassOf<any>>(Entity: ClassConstructor<T>) 
 
 })) satisfies StaticServiceFunction
 
-const mergeDocument = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, instance: Class<C>) => ({
+const mergeDocument = (<C extends ClassOf<any>>(
+	entity: ClassConstructor<C>,
+	instance: Class<C>
+) => ({
 	
 	async mergeDocument(merge: Partial<C>) {
 		// ...
@@ -50,7 +53,10 @@ const mergeDocument = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, ins
 
 })) satisfies InstanceServiceFunction
 
-const deleteDocument = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, instance: Class<C>) => ({
+const deleteDocument = (<C extends ClassOf<any>>(
+	entity: ClassConstructor<C>,
+	instance: Class<C>
+) => ({
 	
 	async deleteDocument(merge: Partial<C>) {
 		// ...
@@ -58,7 +64,10 @@ const deleteDocument = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, in
 
 })) satisfies InstanceServiceFunction
 
-const consumePizza = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, instance: Class<C>) => ({
+const consumePizza = (<C extends ClassOf<any>>(
+	entity: ClassConstructor<C>,
+	instance: Class<C>
+) => ({
 
 	async consumePizza(merge: Partial<C>) {
 		// ...
@@ -66,7 +75,10 @@ const consumePizza = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, inst
 
 })) satisfies InstanceServiceFunction
 
-const consumeBurger = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, instance: Class<C>) => ({
+const consumeBurger = (<C extends ClassOf<any>>(
+	entity: ClassConstructor<C>,
+	instance: Class<C>
+) => ({
 
 	async consumeBurger(merge: Partial<C>) {
 		// ...
