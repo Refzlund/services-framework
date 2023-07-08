@@ -18,7 +18,9 @@ type RecursiveObject<O> = Readonly<Array<Recurse<O | Recurse<O | Recurse<O | Rec
 export type StaticServicesOpts = RecursiveObject<StaticServiceFunction>
 export type InstanceServicesOpts = RecursiveObject<InstanceServiceFunction>
 
-export interface Service<E extends ClassConstructor<any> | Class<any>> {
+export type Collection<E extends ClassOf<any>> = Omit<Service<E>, 'entity' | 'collections'>
+
+export interface Service<E extends ClassOf<any>> {
 	entity: E extends ClassConstructor<any> ? E : ClassConstructor<E>
 	static?: {
 		/** accessible through the service */
@@ -27,14 +29,14 @@ export interface Service<E extends ClassConstructor<any> | Class<any>> {
 	}
 	instance?: {
 		/** accessible through the instance created by service */
-		locals?: (service: AnyRecord, instance: AnyRecord) => AnyRecord
+		locals?: (Service: AnyRecord, instance: AnyRecord) => AnyRecord
 		services: InstanceServicesOpts
 	}
+	collections?: Collection<E>[]
 }
 
+
 // * --- Utility --- * //
-
-
 export type Class<T extends ClassConstructor<any> | any> = T extends ClassConstructor<infer K> ? K : T
 export type ClassConstructor<T = any, TArgs extends Array<any> = any> = new (...args: TArgs) => T
 export type ClassOf<T extends ClassConstructor<any> | any> = T extends ClassConstructor<any> ? T : ClassConstructor<T>
@@ -44,6 +46,7 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 type IntersectArray<U extends Array<any>> = UnionToIntersection<U[number]>
 type IntersectFunctionArray<U extends Array<(...args: any) => any>> = UnionToIntersection<Returned<U[number]>>
 export type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & NonNullable<unknown>
+
 
 // * --- Handle services --- * //
 type HandleServices<S> = S extends Array<any> ? Simplify<HandleArray<S>> : Simplify<Nested<S>>
@@ -55,10 +58,21 @@ type Nested<K> = {
 }
 type HandleArray<K extends Array<any>> = IntersectFunctionArray<K> & Simplify<Nested<IntersectArray<K>>>
 
+
+// * --- Handle collections --- * //
+type HandleCollections<C extends Collection<any>[], K extends 'instance' | 'static'> =
+	Simplify<UnionToIntersection<HandleServices<NonNullable<C[number][K]>['services']>>>
+
+
 export type ServiceFramework<S extends Service<any>> = ClassConstructor<
-	InferConstructor<S['entity']> & Simplify<HandleServices<NonNullable<S['instance']>['services']>>,
+	InferConstructor<S['entity']>
+	& Simplify<HandleServices<NonNullable<S['instance']>['services']>>
+	& HandleCollections<NonNullable<S['collections']>, 'instance'>,
 	InferConstructorArgs<S['entity']>
-	> & Simplify<HandleServices<NonNullable<S['static']>['services']>> & {
+>
+	& Simplify<HandleServices<NonNullable<S['static']>['services']>> & {
 		locals: AnyRecord
 		getLocals(instance: AnyRecord): AnyRecord
 	}
+	& HandleCollections<NonNullable<S['collections']>, 'static'>
+

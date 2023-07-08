@@ -1,5 +1,5 @@
 import { describe, it, beforeAll, expect } from 'vitest'
-import { ClassConstructor, InstanceServiceFunction, Service, StaticServiceFunction, createServicesFramework } from '.'
+import { ClassConstructor, Collection, InstanceServiceFunction, Service, StaticServiceFunction, createServicesFramework } from '.'
 
 
 class User {
@@ -52,7 +52,39 @@ function createFramework() {
 		}
 
 	})) satisfies StaticServiceFunction
+
+	const returnFunctionInput = (<T>(service: ClassConstructor<T>) => ({
+
+		returnFunctionInput(content) {
+			return content
+		}
+
+	})) satisfies StaticServiceFunction
+
 	// * ---------------------- *
+
+	const collection = <T>() => ({
+
+		instance: {
+			locals: () => ({
+				test: 'Testing instance locals'
+			}),
+			services: [
+				returnFunctionInput<T>
+			]
+		},
+		static: {
+			locals: {
+				test: 'Testing static locals'
+			},
+			services: [
+				returnFunctionInput<T>
+			]
+		}
+
+	} satisfies Collection<T>)
+
+
 
 	const userService = {
 		entity: User,
@@ -86,7 +118,10 @@ function createFramework() {
 					}
 				}
 			]
-		}
+		},
+		collections: [
+			collection<User>()
+		]
 	} satisfies Service<User>
 
 	return createServicesFramework({
@@ -99,6 +134,8 @@ function createFramework() {
 
 describe('service-framework', () => {
 	let framework: ReturnType<typeof createFramework>
+
+	
 	
 	beforeAll(() => {
 		framework = createFramework()
@@ -140,14 +177,29 @@ describe('service-framework', () => {
 		user.nested.deep.getName()
 	})
 
-	it('should have created and have access to locals', () => {
+	it('should have created and have access to locals & collections-defined locals', () => {
 		const now = (Date.now() / 1000).toFixed(0)
 		const user = new framework.User({ name: 'John', age: 13 })
 		const locals = user.getLocal()
 		const local = framework.User.getLocals(user)
 
-		expect(framework.User.locals).to.deep.equal({ collection: 'users' })
+		expect(framework.User.locals).to.deep.equal({ collection: 'users', test: 'Testing static locals' })
 		expect(local).to.deep.equal(locals)
-		expect(locals).to.deep.equal({ service: framework.User, instance: user, now })
+		expect(locals).to.deep.equal({
+			service: framework.User,
+			instance: user,
+			now,
+			test: 'Testing instance locals'
+		})
+	})
+
+	it('should have collection instance/static services', () => {
+		const input = { something: 123 }
+		const returned = framework.User.returnFunctionInput(input)
+		expect(returned).to.deep.equal(input)
+
+		const user = new framework.User({ name: 'John', age: 13 })
+		const returned2 = user.returnFunctionInput(input)
+		expect(returned2).to.deep.equal(input)
 	})
 })
