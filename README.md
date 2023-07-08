@@ -187,7 +187,6 @@ export const userService = {
 		]
 	}
 
-	//*WIP
 	collections: [ 
 		databaseHandlers<User>({ table: 'users' })
 	] 
