@@ -6,12 +6,12 @@
 
 
 
-> I'd be happy to recieve [#feedback](https://github.com/Refzlund/services-framework/labels/feedback) moving towards v2
+> I'd be happy to recieve [#feedback](https://github.com/Refzlund/services-framework/labels/feedback%20wanted) moving towards v2
 
 Services Framework, a powerful solution for creating modular, test-driven, and fully typed services for your projects. Say goodbye to messy code and hello to a clean and organized API that enhances developer experience and reusability.
 
 - 🤩 **Modular**: Granular and modular control of entities
-- 🧪 **Test-driven**: Write reliable and maintainable code
+- 🧪 **Better testing suites**: Write reliable and maintainable code with *unit testing* / *test-driven development*
 - 💫 **Typed**: TypeScript support for maximum safety and productivity
 
 <br><br>
@@ -105,16 +105,16 @@ export default <T extends ClassOf<any>>(opts: Options) => ({
 			table: opts.table,
 			...
 		},
-		services: {
+		services: [
 			get<T>
 			saveAll<T>
-		}
+		]
 	}
 
 	instance: {
-		services: {
+		services: [
 			save<T>
-		}
+		]
 	}
 
 }) satisfies Collection<T>

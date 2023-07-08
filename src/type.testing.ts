@@ -1,5 +1,5 @@
 
-import { createServicesFramework, Class, ClassConstructor, StaticServiceFunction, InstanceServiceFunction, Service } from '.'
+import { ClassOf, createServicesFramework, Class, ClassConstructor, StaticServiceFunction, InstanceServiceFunction, Service } from '.'
 
 class User {
 	id: number
@@ -10,7 +10,7 @@ class User {
 	}
 }
 
-const getFromDatabase = (<T extends Class<any>>(Entity: ClassConstructor<T>) => ({
+const getFromDatabase = (<T extends ClassOf<any>>(Entity: ClassConstructor<T>) => ({
 	
 	async getFromDatabase(filter: Partial<T>) {
 		return {} as T
@@ -18,7 +18,7 @@ const getFromDatabase = (<T extends Class<any>>(Entity: ClassConstructor<T>) => 
 
 })) satisfies StaticServiceFunction
 
-const getAll = (<T extends Class<any>>(Entity: ClassConstructor<T>) => ({
+const getAll = (<T extends ClassOf<any>>(Entity: ClassConstructor<T>) => ({
 
 	async getAll(filter: Partial<T>) {
 		return {} as T
@@ -26,7 +26,23 @@ const getAll = (<T extends Class<any>>(Entity: ClassConstructor<T>) => ({
 
 })) satisfies StaticServiceFunction
 
-const mergeDocument = (<C extends Class<any>>(entity: ClassConstructor<C>, instance: C) => ({
+const availablePizzas = (<T extends ClassOf<any>>(Entity: ClassConstructor<T>) => ({
+
+	async availablePizzas(filter: Partial<T>) {
+		return {} as T
+	}
+
+})) satisfies StaticServiceFunction
+
+const availableBurgers = (<T extends ClassOf<any>>(Entity: ClassConstructor<T>) => ({
+
+	async availableBurgers(filter: Partial<T>) {
+		return {} as T
+	}
+
+})) satisfies StaticServiceFunction
+
+const mergeDocument = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, instance: Class<C>) => ({
 	
 	async mergeDocument(merge: Partial<C>) {
 		// ...
@@ -34,7 +50,7 @@ const mergeDocument = (<C extends Class<any>>(entity: ClassConstructor<C>, insta
 
 })) satisfies InstanceServiceFunction
 
-const deleteDocument = (<C extends Class<any>>(entity: ClassConstructor<C>, instance: C) => ({
+const deleteDocument = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, instance: Class<C>) => ({
 	
 	async deleteDocument(merge: Partial<C>) {
 		// ...
@@ -42,6 +58,21 @@ const deleteDocument = (<C extends Class<any>>(entity: ClassConstructor<C>, inst
 
 })) satisfies InstanceServiceFunction
 
+const consumePizza = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, instance: Class<C>) => ({
+
+	async consumePizza(merge: Partial<C>) {
+		// ...
+	}
+
+})) satisfies InstanceServiceFunction
+
+const consumeBurger = (<C extends ClassOf<any>>(entity: ClassConstructor<C>, instance: Class<C>) => ({
+
+	async consumeBurger(merge: Partial<C>) {
+		// ...
+	}
+
+})) satisfies InstanceServiceFunction
 
 const userService = {
 
@@ -49,7 +80,7 @@ const userService = {
 
 	static: {
 		locals: {
-			collection: 'users'
+			table: 'users'
 		},
 		services: [
 			getFromDatabase<User>,
@@ -79,7 +110,23 @@ const userService = {
 				}
 			}
 		]
-	}
+	},
+	collections: [
+		{
+			static: {
+				services: [
+					availablePizzas<User>,
+					availableBurgers<User>,
+				]
+			},
+			instance: {
+				services: [
+					consumePizza<User>,
+					consumeBurger<User>
+				]
+			}
+		}
+	]
 } satisfies Service<User>
 
 
@@ -98,6 +145,12 @@ entitites.User.nested.getFromDatabase({ id: 1 })
 entitites.User.nested.getAll({ id: 1 })
 //               ^?
 
+entitites.User.availableBurgers({ id: 1 })
+//               ^?
+
+entitites.User.availablePizzas({ id: 1 })
+//               ^?
+
 const user = new entitites.User({ id: 1, name: 'Carl' })
 
 user.mergeDocument({ name: 'Bob' })
@@ -109,3 +162,9 @@ user.nested.functions.mergeDocument({ name: 'Bob' })
 //             ^?
 user.nested.functions.deleteDocument({ name: 'Bob' })
 //             ^?
+
+user.consumeBurger({})
+//       ^?
+
+user.consumePizza({})
+//       ^?

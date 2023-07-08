@@ -68,15 +68,23 @@ export function createServiceFramework<const S extends Service<any>>(
 	const Framework = class extends (<any>services.entity) {
 		constructor(...args: any) {
 			super(...args)
+
+			// TODO: Make into proxy https://github.com/Refzlund/services-framework/issues/11
+
 			const locals = services.instance?.locals?.(Framework, this) || {}
 			localsMap.set(this, locals)
 			handleArray(Framework as any, services.instance?.services, this, this, locals)
+			for(const collection of services.collections || [])
+				handleArray(Framework as any, collection.instance?.services, this, this, locals)
 		}
 	} as any as ServiceFramework<S>
 
 	Framework.getLocals = instance => localsMap.get(instance)
 	Framework.locals = services.static?.locals || {}
 	handleArray(Framework as any, services.static?.services, Framework)
+	for (const collection of services.collections || [])
+		handleArray(Framework as any, collection.static?.services, Framework)
+	
 	Object.defineProperty(Framework, 'name', { value: services.entity.name })
 
 	return Framework
