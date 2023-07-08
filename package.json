@@ -1,6 +1,6 @@
 {
 	"name": "services-framework",
-	"version": "1.2.0",
+	"version": "1.3.0",
 	"description": "Seperates classes and functions into services making functionality testable and seperate of concerns.",
 	"keywords": [],
 	"author": "Arthur Refslund @Refzlund",
