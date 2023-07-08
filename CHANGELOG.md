@@ -1,5 +1,11 @@
 # services-framework
 
+## 1.3.0
+
+### Minor Changes
+
+- Added service collections ([#14](https://github.com/Refzlund/services-framework/pull/14))
+
 ## 1.2.0
 
 ### Minor Changes
