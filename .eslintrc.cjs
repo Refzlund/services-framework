@@ -37,6 +37,14 @@ module.exports = {
 				'allowTemplateLiterals': true
 			}
 		],
+		'max-len': ['warn',
+			{
+				'code': 85,
+				'ignoreUrls': true,
+				'ignoreStrings': true,
+				'tabWidth': 0
+			}
+		],
 		// No semi colon:
 		'semi': [
 			'error', 'never'
