@@ -1,5 +1,12 @@
 import { describe, it, beforeAll, expect } from 'vitest'
-import { ClassConstructor, Collection, InstanceServiceFunction, Service, StaticServiceFunction, createServicesFramework } from '.'
+import {
+	ClassConstructor,
+	Collection,
+	InstanceServiceFunction,
+	Service,
+	StaticServiceFunction,
+	createServicesFramework
+} from '.'
 
 
 class User {
@@ -13,7 +20,10 @@ class User {
 
 function createFramework() {
 	// * --- Seperate files --- *
-	const nameToUpper = (<T extends { name: string }>(service: ClassConstructor<T>, instance: T) => ({
+	const nameToUpper = (<T extends { name: string }>(
+		service: ClassConstructor<T>,
+		instance: T
+	) => ({
 		
 		nameToUpper(newName?: string) {
 			instance.name = (newName || instance.name).toUpperCase()
@@ -104,7 +114,11 @@ function createFramework() {
 			]
 		},
 		instance: {
-			locals: (service, instance) => ({ service, instance, now: (Date.now() / 1000).toFixed(0) }),
+			locals: (service, instance) => ({
+				service,
+				instance,
+				now: (Date.now() / 1000).toFixed(0)
+			}),
 			services: [
 				getName<User>,
 				getInstance<User>,
@@ -135,8 +149,6 @@ function createFramework() {
 describe('service-framework', () => {
 	let framework: ReturnType<typeof createFramework>
 
-	
-	
 	beforeAll(() => {
 		framework = createFramework()
 	})
@@ -183,7 +195,10 @@ describe('service-framework', () => {
 		const locals = user.getLocal()
 		const local = framework.User.getLocals(user)
 
-		expect(framework.User.locals).to.deep.equal({ collection: 'users', test: 'Testing static locals' })
+		expect(framework.User.locals).to.deep.equal({
+			collection: 'users',
+			test: 'Testing static locals'
+		})
 		expect(local).to.deep.equal(locals)
 		expect(locals).to.deep.equal({
 			service: framework.User,

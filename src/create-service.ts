@@ -1,4 +1,10 @@
-import type { Service, ServiceFramework, StaticServicesOpts, InstanceServicesOpts } from './types'
+import type {
+	Service,
+	ServiceFramework,
+	StaticServicesOpts,
+	InstanceServicesOpts
+} from './types'
+import { mergeDeep } from './utils/merge-deep'
 
 
 function handleObject(
@@ -15,7 +21,8 @@ function handleObject(
 			throw new Error(`Service ${key} already exists`)
 
 		if (typeof service === 'function') {
-			const fn = !!instance ? service(framework, instance, locals as Record<any, any>) : (<any>service)(framework)
+			const fn = !!instance ?
+				service(framework, instance, locals as Record<any, any>) : (<any>service)(framework)
 			for (const key in fn) {
 				if (key in nested)
 					throw new Error(`Service ${key} already exists`)
@@ -45,7 +52,8 @@ function handleArray(
 	
 	for (const service of arr || []) {
 		if (typeof service === 'function') {
-			const fn = !!instance ? service(framework, instance, locals) : (<any>service)(framework)
+			const fn =
+				!!instance ? service(framework, instance, locals) : (<any>service)(framework)
 			for (const key in fn) {
 				if (key in nested)
 					throw new Error(`Service ${key} already exists`)
@@ -71,16 +79,26 @@ export function createServiceFramework<const S extends Service<any>>(
 
 			// TODO: Make into proxy https://github.com/Refzlund/services-framework/issues/11
 
-			const locals = services.instance?.locals?.(Framework, this) || {}
-			localsMap.set(this, locals)
+			const locals = mergeDeep(
+				services.instance?.locals?.(Framework, this) || {},
+				...services.collections?.map(v => v.instance?.locals?.(Framework, this)) || []
+			)
+
 			handleArray(Framework as any, services.instance?.services, this, this, locals)
-			for(const collection of services.collections || [])
-				handleArray(Framework as any, collection.instance?.services, this, this, locals)
+			services.collections?.forEach(v =>
+				handleArray(Framework as any, v.instance?.services, this, this, locals)
+			)
+			
+			localsMap.set(this, locals)
 		}
 	} as any as ServiceFramework<S>
-
+	
 	Framework.getLocals = instance => localsMap.get(instance)
-	Framework.locals = services.static?.locals || {}
+	Framework.locals = mergeDeep(
+		services.static?.locals || {},
+		...services.collections?.map(v => v.static?.locals) || []
+	)
+	
 	handleArray(Framework as any, services.static?.services, Framework)
 	for (const collection of services.collections || [])
 		handleArray(Framework as any, collection.static?.services, Framework)

@@ -41,7 +41,7 @@ export type Class<T extends ClassConstructor<any> | any> = T extends ClassConstr
 export type ClassConstructor<T = any, TArgs extends Array<any> = any> = new (...args: TArgs) => T
 export type ClassOf<T extends ClassConstructor<any> | any> = T extends ClassConstructor<any> ? T : ClassConstructor<T>
 
-type AnyRecord = Record<any, any>
+export type AnyRecord = Record<any, any>
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 type IntersectArray<U extends Array<any>> = UnionToIntersection<U[number]>
 type IntersectFunctionArray<U extends Array<(...args: any) => any>> = UnionToIntersection<Returned<U[number]>>
