@@ -42,7 +42,9 @@ module.exports = {
 				'code': 85,
 				'ignoreUrls': true,
 				'ignoreStrings': true,
-				'tabWidth': 0
+				'tabWidth': 0,
+				'ignoreTemplateLiterals': true,
+				'ignoreRegExpLiterals': true
 			}
 		],
 		// No semi colon:
